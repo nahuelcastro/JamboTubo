@@ -13,13 +13,13 @@ int INFTY = 10e6; // Valor para indicar que no hubo solución.
 
 // Información de la instancia a resolver.
 int n, R;
-vector<int> w, r;
+vector<int> w, r; // w = pesos, r = resistencias
 
 int solucion_actual = 0;
 vector<bool> agregados;
 vector<int> pesoAcumulado(n, 0);
 
-void agregarPeso(vector<bool> agregados, int i){ // O(2*n) = O(n)
+void agregarPeso(vector<bool> agregados, int i){ // O(n)
     for (int j = 0; j < n ; j++) {
         if (agregados[j]) {
             pesoAcumulado[j] += w[i];
@@ -37,7 +37,6 @@ bool respetaResistencias(){ // O(n)
     return true;
 }
 
-
 // i: posicion del producto a considerar en este nodo.
 // t: suma de los pesos de los productos seleccionados hasta este nodo.
 // k: cantidad de productos seleccionados hasta este nodo.
@@ -51,19 +50,19 @@ void FB(int i, int t, int k) // O(2 * n * 2^n) + O(n) = O(n * 2^n)
         return; // O(1)
     }
 
-    // Recursión. // O(1 * 2 * n * 2^n) = O(n * 2^n)
+    // Recursión. // O(n * 2^n)
     FB(i+1, t, k);
-    agregarPeso(agregados, i);
+    agregarPeso(agregados, i); // O(n) 
     FB(i + 1, t + w[i], k + 1);
 }
 
 bool poda_factibilidad = true; // define si la poda por factibilidad esta habilitada.
 bool poda_optimalidad = true; // define si la poda por optimalidad esta habilitada.
 
-void BT(int i, int t, int k) // O(n) + O(1) + O(1) + O(2 * n * 2^n) = O(2 * n * 2^n)
+void BT(int i, int t, int k) // O(n) + O(1) + O(1) + O(n * 2^n) = O(n * 2^n)
 {
     if(poda_factibilidad && t > R && respetaResistencias()) return; // O(n)
-    if(poda_optimalidad && k+n-i <= solucion_actual) return; // O(1)
+    if(poda_optimalidad && k+n-i < solucion_actual) return; // O(1) //! REVISAR CASO BORDE     
     // Caso base.
     if (i == n) { // O(1)
         if(t <= R && solucion_actual <= k && respetaResistencias()){ // O(n)
@@ -72,7 +71,7 @@ void BT(int i, int t, int k) // O(n) + O(1) + O(1) + O(2 * n * 2^n) = O(2 * n * 
         return; // O(1)
     }
 
-    // Recursión. // O(1 * 2 * n * 2^n) = O(n * 2^n)
+    // Recursión. // O(n * 2^n)
     FB(i+1, t, k);
     agregarPeso(agregados, i);
     FB(i + 1, t + w[i], k + 1);
@@ -81,18 +80,22 @@ void BT(int i, int t, int k) // O(n) + O(1) + O(1) + O(2 * n * 2^n) = O(2 * n * 
 
 vector<vector<int>> M; // Memoria de PD.
 const int UNDEFINED = -1;
-// k = resistencia
-int PD(int i, int t, int k, int res)
-{
-    if (t > R || k < 0) return 0;
-    if (i == n && t > R) return 0;
-    if (i == n && t <= R) return res;
 
-    if(M[i][k] == UNDEFINED){
-        M[i][k] = max(PD(i+1, t+w[i], min(r[i], k-w[i]), res+1), PD(i+1, t, k, res));
+
+// i: posicion del producto a considerar en este nodo.
+// t: suma de los pesos de los productos seleccionados hasta este nodo.
+// rp: resistencia parcial.
+// acum: cantidad de productos apilados hasta este nodo.
+int PD(int i, int t, int rp, int acum)
+{
+    if (t > R || rp < 0) return 0;
+    if (i == n && t <= R) return acum;
+
+    if(M[i][rp] == UNDEFINED){
+        M[i][rp] = max(PD(i+1, t, rp, acum), PD(i+1, t+w[i], min(r[i], rp-w[i]), acum+1));
     }
 
-    return M[i][k];
+    return M[i][rp];
 }
 
 // Recibe por parámetro qué algoritmos utilizar para la ejecución separados por espacios.
