@@ -61,7 +61,7 @@ bool poda_optimalidad = true; // define si la poda por optimalidad esta habilita
 
 void BT(int i, int t, int k) // O(n) + O(1) + O(1) + O(n * 2^n) = O(n * 2^n)
 {
-    if(poda_factibilidad && t > R && respetaResistencias()) return; // O(n)
+    if(poda_factibilidad && (t > R || !respetaResistencias())) return; // O(n)
     if(poda_optimalidad && k+n-i < solucion_actual) return; // O(1) //! REVISAR CASO BORDE     
     // Caso base.
     if (i == n) { // O(1)
