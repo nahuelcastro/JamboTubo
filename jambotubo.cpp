@@ -56,6 +56,16 @@ void FB(int i, int t, int k) // O(2 * n * 2^n) + O(n) = O(n * 2^n)
     FB(i + 1, t + w[i], k + 1);
 }
 
+/* 
+    mejor caso
+    r[i] < p[i+1] o (p[i] > R for all i)  por factibilidad
+
+    peor caso
+    nunca se rompe ninguna resistencia
+    r[i] >= suma de todos los(p[j] (V j > i)) y Peso Total <= R
+
+*/
+
 bool poda_factibilidad = true; // define si la poda por factibilidad esta habilitada.
 bool poda_optimalidad = true; // define si la poda por optimalidad esta habilitada.
 
