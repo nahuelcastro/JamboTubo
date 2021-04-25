@@ -1,3 +1,6 @@
 *.txt
 **/indice.csv
 **/indice-checkpoint.csv
+.idea
+.vscode
+jambotubo

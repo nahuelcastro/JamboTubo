@@ -18,9 +18,8 @@ vector<int> w, r; // w = pesos, r = resistencias
 int solucion_actual = 0;
 vector<bool> agregados;
 
-// O(n)
 // h: hasta que producto veo si se rompio algo
-bool rompeResistencia(int h){
+bool rompeResistencia(int h){   // O(2n) = O(n)
     int peso_total = 0;
     vector<int> rj; // resistencias de los productos dentro del jambotubo
     vector<int> wj; // pesos parciales de los productos dentro del jambotubo
@@ -49,7 +48,7 @@ bool rompeResistencia(int h){
 void FB(int i = 0,int k = 0, int t = 0){
 
     if (i == n){
-        if (t <= R && not rompeResistencia(n)){         // O(n)
+        if (t <= R && !rompeResistencia(n)){         // O(n)
             solucion_actual = max(solucion_actual, k);
         }
     } else {
@@ -60,15 +59,6 @@ void FB(int i = 0,int k = 0, int t = 0){
     }
 }
 
-/*
-    mejor caso
-    r[i] < p[i+1] o (p[i] > R for all i)  por factibilidad
-
-    peor caso
-    nunca se rompe ninguna resistencia
-    r[i] >= suma de todos los(p[j] (V j > i)) y Peso Total <= R
-
-*/
 
 bool poda_factibilidad = true; // define si la poda por factibilidad esta habilitada.
 bool poda_optimalidad = true; // define si la poda por optimalidad esta habilitada.
@@ -82,7 +72,7 @@ void BT(int i = 0, int k = 0, int t = 0){
     if (poda_optimalidad && k + n - i <= solucion_actual) return; // O(1) k+n-i = max res posible
 
     if (i == n){
-        if (not rompeResistencia(i)){   // O(n)
+        if (!rompeResistencia(i)){                   // O(n)
             solucion_actual = max(solucion_actual, k);
         }
     } else {
