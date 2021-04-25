@@ -1,6 +1,7 @@
 *.txt
 **/indice.csv
 **/indice-checkpoint.csv
+**/.ipynb_checkpoints
 .idea
 .vscode
 jambotubo
