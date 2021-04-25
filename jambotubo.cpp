@@ -17,46 +17,50 @@ vector<int> w, r; // w = pesos, r = resistencias
 
 int solucion_actual = 0;
 vector<bool> agregados;
-vector<int> pesoAcumulado(n, 0);
 
-void agregarPeso(vector<bool> agregados, int i){ // O(n)
-    for (int j = 0; j < n ; j++) {
-        if (agregados[j]) {
-            pesoAcumulado[j] += w[i];
+// O(n)
+// h: hasta que producto veo si se rompio algo
+bool rompeResistencia(int h){
+    int peso_total = 0;
+    vector<int> rj; // resistencias de los productos dentro del jambotubo
+    vector<int> wj; // pesos parciales de los productos dentro del jambotubo
+
+    //creo un vector partial_products que va a contener <resistencia, peso acumulado> con todos los productos que tengo puestos
+    for (int i = 0; i < h ; ++i) { // O(n)
+        if (agregados[i]) {
+            peso_total += w[i];
+            rj.push_back(r[i]);
+            wj.push_back(peso_total);
         }
     }
-    agregados[i] = true;
+
+    // ver que ninguno se rompio, evaluando (resistencia < peso final - peso parcial hasta ese producto) = r < peso que tiene encima?
+    for (int i = 0; i < rj.size() ; ++i) { // O(n)
+        if (rj[i] < peso_total - wj[i]) return true;
+    }
+
+    return false;
 }
 
-bool respetaResistencias(){ // O(n)
-    for (int j = 0; j < n; j++) {
-        if(r[j] < pesoAcumulado[j]){
-            return false;
-        }
-    }
-    return true;
-}
 
 // i: posicion del producto a considerar en este nodo.
+// k: cantidad de productos agregados hasta este nodo.
 // t: suma de los pesos de los productos seleccionados hasta este nodo.
-// k: cantidad de productos seleccionados hasta este nodo.
-void FB(int i, int t, int k) // O(2 * n * 2^n) + O(n) = O(n * 2^n)
-{
-    // Caso base.
-    if (i == n) { // O(1)
-        if(t <= R && solucion_actual <= k && respetaResistencias()){ // O(n)
-            solucion_actual = k; // O(1)
-        }
-        return; // O(1)
-    }
+void FB(int i = 0,int k = 0, int t = 0){
 
-    // Recursión. // O(n * 2^n)
-    FB(i+1, t, k);
-    agregarPeso(agregados, i); // O(n) 
-    FB(i + 1, t + w[i], k + 1);
+    if (i == n){
+        if (t <= R && not rompeResistencia(n)){         // O(n)
+            solucion_actual = max(solucion_actual, k);
+        }
+    } else {
+        FB(i + 1, k, t);
+        agregados[i] = true;
+        FB(i + 1, k+1, t + w[i]);
+        agregados[i] = false;
+    }
 }
 
-/* 
+/*
     mejor caso
     r[i] < p[i+1] o (p[i] > R for all i)  por factibilidad
 
@@ -69,24 +73,26 @@ void FB(int i, int t, int k) // O(2 * n * 2^n) + O(n) = O(n * 2^n)
 bool poda_factibilidad = true; // define si la poda por factibilidad esta habilitada.
 bool poda_optimalidad = true; // define si la poda por optimalidad esta habilitada.
 
-void BT(int i, int t, int k) // O(n) + O(1) + O(1) + O(n * 2^n) = O(n * 2^n)
-{
-    if(poda_factibilidad && (t > R || !respetaResistencias())) return; // O(n)
-    if(poda_optimalidad && k+n-i < solucion_actual) return; // O(1) //! REVISAR CASO BORDE     
-    // Caso base.
-    if (i == n) { // O(1)
-        if(t <= R && solucion_actual <= k && respetaResistencias()){ // O(n)
-            solucion_actual = k; // O(1)
+// i: posicion del producto a considerar en este nodo.
+// k: cantidad de productos agregados hasta este nodo.
+// t: suma de los pesos de los productos seleccionados hasta este nodo.
+void BT(int i = 0, int k = 0, int t = 0){
+
+    if (poda_factibilidad && (t > R || rompeResistencia(i))) return; // O(n)
+    if (poda_optimalidad && k + n - i <= solucion_actual) return; // O(1) k+n-i = max res posible
+
+    if (i == n){
+        if (not rompeResistencia(i)){   // O(n)
+            solucion_actual = max(solucion_actual, k);
         }
-        return; // O(1)
+    } else {
+        BT(i + 1, k, t);
+        agregados[i] = true;
+        BT(i + 1, k + 1, t + w[i]);
+        agregados[i] = false;
     }
-
-    // Recursión. // O(n * 2^n)
-    FB(i+1, t, k);
-    agregarPeso(agregados, i);
-    FB(i + 1, t + w[i], k + 1);
-
 }
+
 
 vector<vector<int>> M; // Memoria de PD.
 const int UNDEFINED = -1;
@@ -134,7 +140,6 @@ int main(int argc, char** argv)
     w.assign(n, 0);
     r.assign(n, 0);
     agregados.assign(n,false);
-    pesoAcumulado.assign(n,0);
     for (int i = 0; i < n; ++i) cin >> w[i] >> r[i];
 
     // Ejecutamos el algoritmo y obtenemos su tiempo de ejecución.
@@ -143,27 +148,27 @@ int main(int argc, char** argv)
     auto start = chrono::steady_clock::now();
     if (algoritmo == "FB")
     {
-        FB(0,0,0);
+        FB();
         optimum = solucion_actual;
     }
     else if (algoritmo == "BT")
     {
         poda_optimalidad = poda_factibilidad = true;
-        BT(0, 0, 0);
+        BT();
         optimum = solucion_actual;
     }
     else if (algoritmo == "BT-F")
     {
         poda_optimalidad = false;
         poda_factibilidad = true;
-        BT(0, 0, 0);
+        BT();
         optimum = solucion_actual;
     }
     else if (algoritmo == "BT-O")
     {
         poda_optimalidad = true;
         poda_factibilidad = false;
-        BT(0, 0, 0);
+        BT();
         optimum = solucion_actual;
     }
     else if (algoritmo == "DP")
