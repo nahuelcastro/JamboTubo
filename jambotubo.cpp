@@ -66,7 +66,7 @@ bool poda_optimalidad = true; // define si la poda por optimalidad esta habilita
 // i: posicion del producto a considerar en este nodo.
 // k: cantidad de productos agregados hasta este nodo.
 // t: suma de los pesos de los productos seleccionados hasta este nodo.
-void BT(int i = 0, int k = 0, int t = 0){
+void BT(int i = 0, int k = 0, int t = 0){ // O(n^2 * 2^n) 
 
     if (poda_factibilidad && (t > R || rompeResistencia(i))) return; // O(n)
     if (poda_optimalidad && k + n - i <= solucion_actual) return; // O(1) k+n-i = max res posible
