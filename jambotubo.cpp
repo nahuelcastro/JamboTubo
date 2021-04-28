@@ -91,13 +91,13 @@ const int UNDEFINED = -1;
 // t: suma de los pesos de los productos seleccionados hasta este nodo.
 // rp: resistencia parcial.
 // k: cantidad de productos apilados hasta este nodo.
-int PD(int i, int t, int rp, int k){
+int PD(int i = 0, int t = 0, int rp = R){
     
     if (t > R || rp < 0) return -1;
-    if (i == n && t <= R) return 0;
+    if (i == n) return 0;
 
     if(M[i][rp] == UNDEFINED){
-        M[i][rp] = max(PD(i+1, t, rp, k) , 1 + PD(i+1, t+w[i], min(r[i], rp-w[i]), k+1));
+        M[i][rp] = max(PD(i+1, t, rp), 1 + PD(i+1, t+w[i], min(r[i], rp-w[i])));
     }
 
     return M[i][rp];
@@ -183,10 +183,10 @@ int main(int argc, char** argv)
         M = vector<vector<int>>(n+1, vector<int>(R+1, UNDEFINED));
         for (int i = 0; i < n+1; ++i)
             for (int j = 0; j < R+1; ++j)
-                PD(i, j, R, 0);
+                PD(i, j, R);
 
         // Obtenemos la solucion optima.
-        optimum = PD(0, 0, R, 0);
+        optimum = PD(0, 0, R);
     }
     auto end = chrono::steady_clock::now();
     double total_time = chrono::duration<double, milli>(end - start).count();
