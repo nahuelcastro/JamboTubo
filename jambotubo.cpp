@@ -91,14 +91,14 @@ const int UNDEFINED = -1;
 // i: posicion del producto a considerar en este nodo.
 // t: suma de los pesos de los productos seleccionados hasta este nodo.
 // rp: resistencia parcial.
-// acum: cantidad de productos apilados hasta este nodo.
-int PD(int i, int t, int rp, int acum)
+// k: cantidad de productos apilados hasta este nodo.
+int PD(int i, int t, int rp, int k)
 {
-    if (t > R || rp < 0) return 0;
-    if (i == n && t <= R) return acum;
+    if (t > R || rp <= 0) return 0;
+    if (i == n) return k;
 
     if(M[i][rp] == UNDEFINED){
-        M[i][rp] = max(PD(i+1, t, rp, acum), PD(i+1, t+w[i], min(r[i], rp-w[i]), acum+1));
+        M[i][rp] = max(PD(i+1, t, rp, k), PD(i+1, t+w[i], min(r[i], rp-w[i]), k+1));
     }
 
     return M[i][rp];
