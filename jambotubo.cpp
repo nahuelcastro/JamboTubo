@@ -10,7 +10,6 @@
 using namespace std;
 
 int INFTY = 10e6; // Valor para indicar que no hubo solución.
-
 // Información de la instancia a resolver.
 int n, R;
 vector<int> w, r; // w = pesos, r = resistencias
@@ -92,17 +91,34 @@ const int UNDEFINED = -1;
 // t: suma de los pesos de los productos seleccionados hasta este nodo.
 // rp: resistencia parcial.
 // k: cantidad de productos apilados hasta este nodo.
-int PD(int i, int t, int rp, int k)
-{
-    if (t > R || rp <= 0) return 0;
-    if (i == n) return k;
+int PD(int i, int t, int rp, int k){
+    
+    if (t > R || rp < 0) return -1;
+    if (i == n && t <= R) return 0;
 
     if(M[i][rp] == UNDEFINED){
-        M[i][rp] = max(PD(i+1, t, rp, k), PD(i+1, t+w[i], min(r[i], rp-w[i]), k+1));
+        M[i][rp] = max(PD(i+1, t, rp, k) , 1 + PD(i+1, t+w[i], min(r[i], rp-w[i]), k+1));
     }
 
     return M[i][rp];
 }
+
+
+
+
+
+// original
+// int PD(int i, int t, int rp, int k) 
+// {
+//     if (t > R || rp < 0) return 0;
+//     if (i == n) return k;
+
+//     if(M[i][rp] == UNDEFINED){
+//         M[i][rp] = max(PD(i+1, t, rp, k), PD(i+1, t+w[i], min(r[i], rp-w[i]), k+1));
+//     }
+
+//     return M[i][rp];
+// }
 
 // Recibe por parámetro qué algoritmos utilizar para la ejecución separados por espacios.
 // Imprime por clog la información de ejecución de los algoritmos.
