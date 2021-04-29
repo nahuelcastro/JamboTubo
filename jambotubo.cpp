@@ -86,11 +86,9 @@ void BT(int i = 0, int k = 0, int t = 0){ // O(n^2 * 2^n)
 vector<vector<int>> M; // Memoria de PD.
 const int UNDEFINED = -1;
 
-
 // i: posicion del producto a considerar en este nodo.
 // t: suma de los pesos de los productos seleccionados hasta este nodo.
 // rp: resistencia parcial.
-// k: cantidad de productos apilados hasta este nodo.
 int PD(int i = 0, int t = 0, int rp = R){
     
     if (t > R || rp < 0) return -1;
@@ -102,23 +100,6 @@ int PD(int i = 0, int t = 0, int rp = R){
 
     return M[i][rp];
 }
-
-
-
-
-
-// original
-// int PD(int i, int t, int rp, int k) 
-// {
-//     if (t > R || rp < 0) return 0;
-//     if (i == n) return k;
-
-//     if(M[i][rp] == UNDEFINED){
-//         M[i][rp] = max(PD(i+1, t, rp, k), PD(i+1, t+w[i], min(r[i], rp-w[i]), k+1));
-//     }
-
-//     return M[i][rp];
-// }
 
 // Recibe por parámetro qué algoritmos utilizar para la ejecución separados por espacios.
 // Imprime por clog la información de ejecución de los algoritmos.
