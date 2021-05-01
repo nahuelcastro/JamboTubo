@@ -10,20 +10,17 @@
 using namespace std;
 
 int INFTY = 10e6; // Valor para indicar que no hubo solución.
-// Información de la instancia a resolver.
 int n, R;
 vector<int> w, r; // w = pesos, r = resistencias
-
-int solucion_actual = 0;
 vector<bool> agregados;
+int solucion_actual = 0;
 
-// h: hasta que producto veo si se rompio algo
+// h: hasta que producto veo si se rompio alguna resistencia
 bool rompeResistencia(int h){   // O(2n) = O(n)
     int peso_total = 0;
     vector<int> rj; // resistencias de los productos dentro del jambotubo
     vector<int> wj; // pesos parciales de los productos dentro del jambotubo
 
-    //creo un vector partial_products que va a contener <resistencia, peso acumulado> con todos los productos que tengo puestos
     for (int i = 0; i < h ; ++i) { // O(n)
         if (agregados[i]) {
             peso_total += w[i];
@@ -44,19 +41,20 @@ bool rompeResistencia(int h){   // O(2n) = O(n)
 // i: posicion del producto a considerar en este nodo.
 // k: cantidad de productos agregados hasta este nodo.
 // t: suma de los pesos de los productos seleccionados hasta este nodo.
-void FB(int i = 0,int k = 0, int t = 0){
+void FB(int i = 0,int k = 0, int t = 0){ //O(n * 2^n )
 
     if (i == n){
-        if (t <= R && !rompeResistencia(n)){         // O(n)
+        if (t <= R && !rompeResistencia(n)){                         // O(n)
             solucion_actual = max(solucion_actual, k);
         }
-    } else {
+    } else {                                                         
         agregados[i] = true;
         FB(i + 1, k+1, t + w[i]);
         agregados[i] = false;
         FB(i + 1, k, t);
     }
 }
+
 
 
 bool poda_factibilidad = true; // define si la poda por factibilidad esta habilitada.
@@ -67,14 +65,14 @@ bool poda_optimalidad = true; // define si la poda por optimalidad esta habilita
 // t: suma de los pesos de los productos seleccionados hasta este nodo.
 void BT(int i = 0, int k = 0, int t = 0){ // O(n^2 * 2^n) 
 
-    if (poda_optimalidad && k + n - i <= solucion_actual) return; // O(1) k+n-i = max res posible
+    if (poda_optimalidad && k + n - i <= solucion_actual) return;    // O(1) 
     if (poda_factibilidad && (t > R || rompeResistencia(i))) return; // O(n)
 
     if (i == n){
-        if (t <= R && !rompeResistencia(i)){                   // O(n)
+        if (t <= R && !rompeResistencia(i)){                         // O(n)
             solucion_actual = max(solucion_actual, k);
         }
-    } else {
+    } else {                                                         
         agregados[i] = true;
         BT(i + 1, k + 1, t + w[i]);
         agregados[i] = false;
@@ -100,6 +98,7 @@ int PD(int i = 0, int t = 0, int rp = R){
 
     return M[i][rp];
 }
+
 
 // Recibe por parámetro qué algoritmos utilizar para la ejecución separados por espacios.
 // Imprime por clog la información de ejecución de los algoritmos.
